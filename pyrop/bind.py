@@ -2,7 +2,7 @@
 
 '''A Binding wrapper
 '''
-__version__ = "0.3.0"
+__version__ = "0.14.0"
 
 # Copyright (c) 2020 Janky <box@janky.tech>
 # All right reserved.
@@ -228,12 +228,13 @@ class RopBind(object):
 
         # collect tags to delete
         dtags = [tag]
+        tags2del = []
         if from_ is not None:
             try:
                 dtags = self.__tags[self.__tags.index(from_):]
             except ValueError:
                 del dtags[:]
-        elif tag == 0 and len(self.__tags) > 1:
+        elif tag == 0 and len(self.__tags) > 0:
             dtags = self.__tags[-1:]
 
         # collect objects to delete
@@ -255,10 +256,17 @@ class RopBind(object):
                 if len(objs) == 0:
                     del self.__t2objs[tg_]
             # delete obsolete tags
-            if tg_ not in self.__t2objs:
-                try:
-                    self.__tags.remove(tg_)
-                except ValueError: pass
+            if object_ is None and objects is None and tg_ not in self.__t2objs:
+                tags2del.append(tg_)
+
+        for tg_ in tags2del:
+            try:
+                self.__tags.remove(tg_)
+            except ValueError: pass
+        if len(self.__tags) == 0:
+            self.__tags.append(1)
+        if len(self.__tags) == 1:
+            self.__cnt = self.__tags[-1]
 
         if ret != ROPE.RNP_SUCCESS:
             raise RopError(ret)
@@ -280,7 +288,7 @@ class RopBind(object):
         return "tags = " + str(self.__tags) + "\nt2objs = " + str(self.__t2objs)
 
     @property
-    def ropid(self): return 1592576775
+    def ropid(self): return 1610638124
 
     # Constants
 
@@ -364,8 +372,6 @@ class RopBind(object):
     def ROP_ERROR_BAD_PARAMETERS(self): return 0x80000000
     @property
     def ROP_ERROR_LIBVERSION(self): return 0x80000001
-    @property
-    def ROP_ERROR_INTERNAL(self): return 0x80000002
     @property
     def ROP_ERROR_INTERNAL(self): return 0x80000002
     @property
